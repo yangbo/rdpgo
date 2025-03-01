@@ -1,6 +1,3 @@
-
-version: '3'
-
 services:
   app:
     build:
@@ -8,7 +5,9 @@ services:
       dockerfile: Dockerfile
     container_name: appgo.mojotv.cn
     ports:
-      - 9528:9528
+      - "9528:9528"
+    networks:
+      - mojo
     depends_on:
       - rdp
       - vnc
@@ -16,34 +15,30 @@ services:
   # 提供guac 协议
   guacd:
     container_name: guacd.mojotv.cn
-    image: guacamole/guacd
-#    ports:
-#      - 4822:4822
+    image: guacamole/guacd:latest
+    networks:
+      - mojo
     restart: always
 
   vnc:
     # vnc 图形界面Ubuntu虚拟机容器 password: vncpassword  容器 vnc端口5901
-    image: consol/ubuntu-xfce-vnc:1.4.0
+    image: consol/ubuntu-xfce-vnc:latest
     container_name: guacd-vnc.mojotv.cn
-#    environment:
-#      -  VNC_RESOLUTION=1024x768
+    networks:
+      - mojo
     depends_on:
       - guacd
-#    ports:
-#      - 5901:5901
-#      - 6901:6901
-
 
   rdp: #rdp 图形界面Ubuntu虚拟机容器  远程桌面支持rdp协议  容器rdp端口 3389
-    image: umis/xubuntu-office-xrdp-desktop:v1.0
+    image: danielguerra/ubuntu-xrdp:latest    # Updated to a more maintained image
     container_name: guacd-rdp.mojotv.cn  #容器名称 aka ( hostname,内网域名)
     environment:
-      - "USERNAME:root"
-      - "PASSWORD:Docker"
+      - USERNAME=root
+      - PASSWORD=Docker
+    networks:
+      - mojo
     depends_on:
       - guacd
-#    ports:
-#      - 3389:3389
 
 networks:
   mojo:
